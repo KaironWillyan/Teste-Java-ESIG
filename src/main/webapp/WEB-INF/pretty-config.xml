@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pretty-config xmlns="http://ocpsoft.org/schema/rewrite-config-prettyfaces" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="http://ocpsoft.org/schema/rewrite-config-prettyfaces
+                      http://ocpsoft.org/xml/ns/prettyfaces/rewrite-config-prettyfaces.xsd">
+
+    <url-mapping id="inicio">
+        <pattern value="/" />
+        <view-id value="/listagem.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="novo-funcionario">
+        <pattern value="/cadastro/pessoa" />
+        <view-id value="/cadastro_funcionario.xhtml" />
+    </url-mapping>
+
+    <url-mapping id="novo-usuario">
+        <pattern value="/cadastro/usuario" />
+        <view-id value="/cadastro_usuario.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="login">
+	    <pattern value="/login" />
+	    <view-id value="/login.xhtml" />
+	</url-mapping>
+	
+	<url-mapping id="acesso-negado">
+	    <pattern value="/acesso-negado" />
+	    <view-id value="/acesso_negado.xhtml" />
+	</url-mapping>
+		
+
+</pretty-config>

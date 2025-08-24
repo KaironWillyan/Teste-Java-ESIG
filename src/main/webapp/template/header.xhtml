@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      
+<h:body>
+    <ui:composition>
+        <h:form>
+            <p:menubar>
+			    <p:menuitem value="Início" url="#{request.contextPath}/" icon="pi pi-home" />
+			
+			    <p:submenu label="Cadastro" rendered="#{authBean.admin}" icon="pi pi-file-edit">
+			        <p:menuitem value="Pessoas" url="#{request.contextPath}/cadastro/pessoa" icon="pi pi-users" />
+			        <p:menuitem value="Usuário" url="#{request.contextPath}/cadastro/usuario" icon="pi pi-user-plus" />			        
+			    </p:submenu>
+			    
+			    <f:facet name="options">
+                    <h:panelGroup rendered="#{authBean.logado}" style="display: flex; align-items: center;">
+                        <h:outputText value="Olá, #{authBean.usuarioLogado.nome}" style="margin-right: 15px; color: #495057;"/>
+                        <p:commandButton value="Sair" action="#{authBean.logout}" icon="pi pi-sign-out" 
+                                         styleClass="ui-button-danger ui-button-outlined"/>
+                    </h:panelGroup>
+                </f:facet>
+			</p:menubar>
+        </h:form>
+    </ui:composition>
+</h:body>
+</html>
