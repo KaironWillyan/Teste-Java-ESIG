@@ -21,6 +21,11 @@
             <version>8.0.0</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+    		<groupId>org.jboss.weld.servlet</groupId>
+	    	<artifactId>weld-servlet-core</artifactId>
+	    	<version>3.1.9.Final</version>
+		</dependency>
 
         <dependency>
             <groupId>org.glassfish</groupId>
@@ -33,18 +38,50 @@
             <artifactId>primefaces</artifactId>
             <version>10.0.0</version>
         </dependency>
+        <dependency>
+		    <groupId>org.ocpsoft.rewrite</groupId>
+	    	<artifactId>rewrite-servlet</artifactId>
+	    	<version>3.4.4.Final</version>
+		</dependency>
+		<dependency>
+	        <groupId>org.omnifaces</groupId>
+	        <artifactId>omnifaces</artifactId>
+	        <version>3.13</version> 
+        </dependency>
+
+		<dependency>
+		    <groupId>org.ocpsoft.rewrite</groupId>
+		    <artifactId>rewrite-config-prettyfaces</artifactId>
+		    <version>3.4.4.Final</version>
+		</dependency>
 
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>5.6.5.Final</version>
         </dependency>
-
+		<dependency>
+		    <groupId>org.hibernate</groupId>
+		    <artifactId>hibernate-validator</artifactId>
+		    <version>6.2.0.Final</version>
+		</dependency>
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.3.3</version>
-        </dependency>
+		    <groupId>org.postgresql</groupId>
+		    <artifactId>postgresql</artifactId>
+		    <version>42.7.7</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.mindrot</groupId>
+		    <artifactId>jbcrypt</artifactId>
+		    <version>0.4</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>net.sf.jasperreports</groupId>
+		    <artifactId>jasperreports</artifactId>
+		    <version>6.20.6</version> 
+	    </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -58,6 +95,27 @@
             <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>4.5.1</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+  			<groupId>org.mockito</groupId>
+		  	<artifactId>mockito-inline</artifactId>
+		  	<version>4.5.1</version>
+		  	<scope>test</scope>
+		</dependency>
+        
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>4.5.1</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
 
     <build>
@@ -68,6 +126,39 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.2</version>
             </plugin>
+            <plugin>
+		      <groupId>org.jacoco</groupId>
+		      <artifactId>jacoco-maven-plugin</artifactId>
+		      <version>0.8.8</version>
+		      <executions>
+		        <execution>
+		          <goals><goal>prepare-agent</goal></goals>
+		        </execution>
+		        <execution>
+		          <id>report</id>
+		          <phase>test</phase>
+		          <goals><goal>report</goal></goals>
+		        </execution>
+		        <execution>
+		          <id>check</id>
+		          <goals><goal>check</goal></goals>
+		          <configuration>
+		            <rules>
+		              <rule>
+		                <element>BUNDLE</element>
+		                <limits>
+		                  <limit>
+		                    <counter>INSTRUCTION</counter>
+		                    <value>COVEREDRATIO</value>
+		                    <minimum>0.75</minimum>
+		                  </limit>
+		                </limits>
+		              </rule>
+		            </rules>
+		          </configuration>
+		        </execution>
+		      </executions>
+		    </plugin>
         </plugins>
     </build>
 </project>
