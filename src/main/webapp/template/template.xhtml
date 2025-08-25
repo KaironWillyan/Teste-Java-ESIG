@@ -10,16 +10,7 @@
     <title>ESIG - Desafio Java</title>
     <h:outputStylesheet library="css" name="style.css" />
 </h:head>
-<h:body>
-
-    <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
-    
-    <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" 
-              resizable="false" showHeader="false">
-        <i class="pi pi-spin pi-spinner" style="font-size: 2rem; margin: 10px; vertical-align: middle;"></i>
-        <h:outputText value="Processando... Por favor, aguarde." style="font-size: 1.2rem; vertical-align: middle;"/>
-    </p:dialog>
-    
+<h:body>  
     	
     <div id="header">
         <ui:insert name="header">

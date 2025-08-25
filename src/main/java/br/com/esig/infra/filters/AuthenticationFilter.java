@@ -41,9 +41,6 @@ public class AuthenticationFilter implements Filter {
 
 	        boolean adminOnly = requiresAdmin(path);
 
-	        System.out.printf(">>> [Filtro] path=%s | logged=%s | admin=%s | adminOnly=%s | public=%s%n",
-	                path, loggedIn, isAdmin, adminOnly, isPublic);
-
 	        if (!loggedIn && !isPublic) {
 	            response.sendRedirect(contextPath + "/login");
 	            return;
