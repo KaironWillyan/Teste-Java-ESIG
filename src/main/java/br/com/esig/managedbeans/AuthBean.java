@@ -27,14 +27,11 @@ public class AuthBean implements Serializable {
     private Usuario usuarioLogado;
 
     public String login() {
-        System.out.println(">>> Tentativa de login para o email: " + this.email);
 
         Usuario usuario = usuarioService.findUsuarioByEmail(this.email);
-        System.out.println(">>> Tentativa de login para o usuario: " + usuario.getSenha());
 
         if (usuario != null && usuario.isAtivo() && usuarioService.checkPassword(this.senha, usuario.getSenha())) {
             this.usuarioLogado = usuario;
-            System.out.println(">>> Senha para o usuario correta: " + usuario.getNome());
 
             FacesContext context = FacesContext.getCurrentInstance();
             HttpSession session = (HttpSession) context.getExternalContext().getSession(true);
