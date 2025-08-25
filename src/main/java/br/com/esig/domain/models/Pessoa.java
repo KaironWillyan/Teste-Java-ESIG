@@ -48,7 +48,7 @@ public class Pessoa implements Serializable {
     private Cargo cargo;
 
     @Column(name = "ativo", nullable = false)
-    private boolean ativo = true;
+    private Boolean ativo = Boolean.TRUE;
 
     public boolean isAtivo() {
         return ativo;
