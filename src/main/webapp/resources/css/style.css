@@ -1,0 +1,48 @@
+/* --- Reset Básico e Estilo do Corpo --- */
+body {
+    margin: 0; /* Remove as margens brancas à volta da página */
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4; /* Um cinza claro para o fundo */
+    display: flex; /* Ativa o Flexbox */
+    flex-direction: column; /* Organiza os itens em coluna (header, content, footer) */
+    min-height: 100vh; /* Garante que o corpo ocupe no mínimo 100% da altura da tela */
+}
+
+/* --- Conteúdo Principal --- */
+#content {
+    flex-grow: 1; /* Faz a área de conteúdo crescer para ocupar todo o espaço disponível */
+    padding: 20px;
+    width: 80%;
+    margin: 0 auto; /* Mantém o conteúdo centralizado */
+}
+
+/* --- Cabeçalho --- */
+#header .ui-menubar {
+    border-radius: 0; /* Remove as bordas arredondadas do menu */
+    border-left: 0;
+    border-right: 0;
+}
+
+/* --- Rodapé --- */
+#footer {
+    width: 100%;
+    background-color: #e9ecef;
+    color: #6c757d;
+    text-align: center;
+    padding: 15px 0;
+    border-top: 1px solid #dee2e6;
+    margin-top: auto; /* Empurra o rodapé para o fundo quando o conteúdo é curto */
+}
+
+/* --- Melhorias na Tabela e Painéis --- */
+.ui-panel .ui-panel-titlebar {
+    background: #007bff; /* Um azul mais moderno para os cabeçalhos dos painéis */
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.ui-datatable .ui-datatable-header {
+    background: #6c757d; /* Um cinza escuro para o cabeçalho da tabela */
+    color: #ffffff;
+}@charset "UTF-8";

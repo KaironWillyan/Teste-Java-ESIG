@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+<ui:composition template="/template/template.xhtml"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+  <ui:define name="content">
+
+    <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+    <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false"
+              resizable="false" showHeader="false">
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem; margin: 10px; vertical-align: middle;"></i>
+      <h:outputText value="Processando... Por favor, aguarde." style="font-size: 1.2rem; vertical-align: middle;"/>
+    </p:dialog>
+
+    <h:form id="formFuncionarios" target="_blank">
+      <h1>Gestão de Pessoas</h1>
+
+      <p:panel header="Controles e Filtros">
+        <p:toolbar>
+          <p:toolbarGroup>
+            <p:selectOneMenu value="#{funcionarioBean.filtroCargoId}" style="min-width:180px; margin-right:10px;">
+              <f:selectItem itemLabel="Filtrar por Cargo" itemValue="#{null}" noSelectionOption="true" />
+              <f:selectItems value="#{funcionarioBean.todosOsCargos}" var="c" itemLabel="#{c.nome}" itemValue="#{c.id}"/>
+              <p:ajax process="@this" update="tabelaFuncionarios" listener="#{funcionarioBean.buscar}" />
+            </p:selectOneMenu>
+
+            <p:inputText value="#{funcionarioBean.filtroNome}" placeholder="Filtrar por Nome" style="margin-right:10px;"/>
+            <p:commandButton value="Buscar" icon="pi pi-search" process="@form" update="tabelaFuncionarios"
+                             actionListener="#{funcionarioBean.buscar}" />
+
+            <p:selectBooleanCheckbox value="#{funcionarioBean.incluirInativos}" itemLabel="Incluir Inativos" style="margin-left:10px;">
+              <p:ajax process="@this" update="tabelaFuncionarios" listener="#{funcionarioBean.buscar}" />
+            </p:selectBooleanCheckbox>
+          </p:toolbarGroup>
+
+          <p:toolbarGroup align="right">
+            <p:commandButton value="Nova Pessoa" icon="pi pi-plus"
+                             actionListener="#{funcionarioBean.novoFuncionario}"
+                             update=":formDialog:dialogContent"
+                             oncomplete="PF('funcionarioDialog').show()"
+                             styleClass="ui-button-success" />
+
+            <p:commandButton value="Gerar PDF" icon="pi pi-file-pdf"
+                             actionListener="#{funcionarioBean.gerarRelatorioPDF}"
+                             ajax="false" styleClass="ui-button-danger"
+                             style="margin-left:10px;" />
+          </p:toolbarGroup>
+        </p:toolbar>
+      </p:panel>
+
+      <p:spacer height="20" />
+
+      <p:dataTable id="tabelaFuncionarios" var="func" value="#{funcionarioBean.funcionarios}"
+                   emptyMessage="Nenhum funcionário encontrado."
+                   paginator="true" rows="10" paginatorPosition="bottom"
+                   paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                   rowsPerPageTemplate="5,10,15,20"
+                   currentPageReportTemplate="Exibindo {startRecord}-{endRecord} de {totalRecords}">
+
+        <p:column headerText="Status" style="width:100px; text-align:center">
+          <p:tag severity="#{func.ativo ? 'success' : 'danger'}" value="#{func.ativo ? 'Ativo' : 'Inativo'}" rounded="true"/>
+        </p:column>
+
+        <p:column headerText="Nome" sortBy="#{func.nome}">
+          <h:outputText value="#{func.nome}" />
+        </p:column>
+
+        <p:column headerText="Email" sortBy="#{func.email}">
+          <h:outputText value="#{func.email}" />
+        </p:column>
+
+        <p:column headerText="Cargo" sortBy="#{func.cargo.nome}">
+          <h:outputText value="#{func.cargo.nome}" />
+        </p:column>
+
+        <p:column headerText="Ações" style="width:120px; text-align:center">
+          <p:commandButton icon="pi pi-pencil" title="Editar"
+                           update=":formDialog:dialogContent"
+                           oncomplete="PF('funcionarioDialog').show()"
+                           styleClass="rounded-button ui-button-info"
+                           style="margin-right:5px;">
+            <f:setPropertyActionListener value="#{func}" target="#{funcionarioBean.selectedFuncionario}" />
+          </p:commandButton>
+
+          <p:commandButton icon="#{func.ativo ? 'pi pi-ban' : 'pi pi-check-circle'}"
+                           title="#{func.ativo ? 'Desativar' : 'Ativar'}"
+                           actionListener="#{funcionarioBean.toggleStatus(func)}"
+                           update="@form"
+                           styleClass="rounded-button #{func.ativo ? 'ui-button-danger' : 'ui-button-success'}">
+            <p:confirm header="Confirmação"
+                       message="Tem a certeza que quer #{func.ativo ? 'DESATIVAR' : 'ATIVAR'} este funcionário?"
+                       icon="pi pi-exclamation-triangle" />
+          </p:commandButton>
+        </p:column>
+
+        <f:facet name="footer">
+          Total de pessoas encontradas: #{funcionarioBean.funcionariosCount}
+        </f:facet>
+      </p:dataTable>
+
+      <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+        <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+        <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+      </p:confirmDialog>
+    </h:form>
+
+    <h:form id="formDialog">
+      <p:dialog header="Dados da Pessoa" widgetVar="funcionarioDialog" modal="true"
+                showEffect="fade" hideEffect="fade" resizable="false" width="800">
+
+        <p:outputPanel id="dialogContent" style="padding-bottom:10px;">
+          <p:messages id="dialogMessages" showDetail="true" closable="true"><p:autoUpdate/></p:messages>
+
+          <p:panelGrid columns="4" layout="grid" styleClass="ui-panelgrid-blank"
+                       rendered="#{not empty funcionarioBean.selectedFuncionario}"
+                       columnClasses="ui-g-2,ui-g-4,ui-g-2,ui-g-4">
+
+            <p:outputLabel for="nome" value="Nome Completo:"/>
+            <p:inputText id="nome" value="#{funcionarioBean.selectedFuncionario.nome}" required="true" style="width:100%"/>
+
+            <p:outputLabel for="email" value="Email:"/>
+            <p:inputText id="email" value="#{funcionarioBean.selectedFuncionario.email}" required="true" style="width:100%"/>
+
+            <p:outputLabel for="usuario" value="Usuário:"/>
+            <p:inputText id="usuario" value="#{funcionarioBean.selectedFuncionario.usuario}" style="width:100%"/>
+
+            <p:outputLabel for="dataNasc" value="Data de Nascimento:"/>
+            <p:calendar id="dataNasc" value="#{funcionarioBean.selectedFuncionario.dataNascimento}"
+                        pattern="dd/MM/yyyy" mask="true" navigator="true" yearRange="c-100:c"/>
+
+            <p:outputLabel for="telefone" value="Telefone:"/>
+            <p:inputText id="telefone" value="#{funcionarioBean.selectedFuncionario.telefone}"
+                         placeholder="(99) 99999-9999" style="width:100%"/>
+
+            <p:outputLabel for="cargo" value="Cargo:"/>
+            <p:selectOneMenu id="cargo" value="#{funcionarioBean.selectedFuncionario.cargo}"
+                             converter="omnifaces.SelectItemsConverter" required="true" style="width:100%">
+              <f:selectItem itemLabel="Selecione o cargo..." itemValue="#{null}" noSelectionOption="true"/>
+              <f:selectItems value="#{funcionarioBean.todosOsCargos}" var="c" itemLabel="#{c.nome}" itemValue="#{c}"/>
+            </p:selectOneMenu>
+
+            <p:outputLabel for="cep" value="CEP:"/>
+            <p:inputMask id="cep" value="#{funcionarioBean.selectedFuncionario.cep}" mask="99999-999" style="width:100%"/>
+
+            <p:outputLabel for="endereco" value="Endereço:"/>
+            <p:inputText id="endereco" value="#{funcionarioBean.selectedFuncionario.endereco}" style="width:100%"/>
+
+            <p:outputLabel for="cidade" value="Cidade:"/>
+            <p:inputText id="cidade" value="#{funcionarioBean.selectedFuncionario.cidade}" style="width:100%"/>
+
+            <p:outputLabel for="pais" value="País:"/>
+            <p:inputText id="pais" value="#{funcionarioBean.selectedFuncionario.pais}" style="width:100%"/>
+          </p:panelGrid>
+        </p:outputPanel>
+
+        <f:facet name="footer">
+          <p:commandButton value="Salvar" icon="pi pi-check"
+                           actionListener="#{funcionarioBean.salvar}"
+                           update=":formFuncionarios:tabelaFuncionarios" />
+          <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('funcionarioDialog').hide()"
+                           styleClass="ui-button-secondary" immediate="true"/>
+        </f:facet>
+      </p:dialog>
+    </h:form>
+
+  </ui:define>
+</ui:composition>
+</html>
