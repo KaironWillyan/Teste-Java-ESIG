@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
+import javax.enterprise.context.control.RequestContextController;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
@@ -38,8 +40,27 @@ class PessoaServiceTest {
     @Mock private EntityManager manager;
     @Mock private EntityTransaction transaction;
 
+    @Mock private RequestContextController requestContextController; 
+
     @InjectMocks
     private PessoaService pessoaService;
+
+    private void invokePostConstruct() {
+        try {
+            Method m = PessoaService.class.getDeclaredMethod("init");
+            m.setAccessible(true);
+            m.invoke(pessoaService);
+        } catch (Exception e) {
+            throw new RuntimeException("Falha ao invocar @PostConstruct de PessoaService", e);
+        }
+    }
+
+    private void awaitJobFinish() {
+        long deadline = System.currentTimeMillis() + 2000;
+        while (pessoaService.isBusy() && System.currentTimeMillis() < deadline) {
+            try { Thread.sleep(10); } catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
+        }
+    }
 
     private static Vencimento venc(TipoVencimento tipo, String valor) {
         Vencimento v = new Vencimento();
@@ -62,6 +83,7 @@ class PessoaServiceTest {
         p.setCargo(cargo);
         return p;
     }
+
 
     @Test
     void deveCalcularSalarioSomandoCreditosESubtraindoDebitos() {
@@ -92,29 +114,46 @@ class PessoaServiceTest {
 
     @Test
     void deveConsolidarSalarioDeNovaPessoa() {
+        invokePostConstruct();
+
         when(manager.getTransaction()).thenReturn(transaction);
+        when(transaction.isActive()).thenReturn(true);
+
+        when(requestContextController.activate()).thenReturn(true);
+        doNothing().when(requestContextController).deactivate();
 
         Cargo analista = cargo(2L, "Analista");
         Pessoa p = pessoa(30L, "Carlos", analista);
+
+        when(manager.contains(any())).thenReturn(true);
 
         when(pessoaRepository.findAll()).thenReturn(List.of(p));
         when(consolidadoRepository.find(p.getId())).thenReturn(null);
         when(cargoVencimentoRepository.findByCargo(any(Cargo.class))).thenReturn(Collections.emptyList());
 
         pessoaService.calcularEConsolidarTodos();
+        awaitJobFinish();
 
         verify(consolidadoRepository, times(1)).save(any(PessoaSalarioConsolidado.class));
         verify(consolidadoRepository, never()).saveMerge(any(PessoaSalarioConsolidado.class));
         verify(transaction, times(1)).begin();
         verify(transaction, times(1)).commit();
+        verify(requestContextController, atLeastOnce()).activate();
     }
 
     @Test
     void deveAtualizarSalarioConsolidadoExistente() {
+        invokePostConstruct();
         when(manager.getTransaction()).thenReturn(transaction);
+        when(transaction.isActive()).thenReturn(true);
+
+        when(requestContextController.activate()).thenReturn(true);
+        doNothing().when(requestContextController).deactivate();
 
         Cargo gerente = cargo(3L, "Gerente");
         Pessoa p = pessoa(40L, "Ana", gerente);
+
+        when(manager.contains(any())).thenReturn(true);
 
         PessoaSalarioConsolidado existente = new PessoaSalarioConsolidado();
         existente.setPessoaId(p.getId());
@@ -124,10 +163,13 @@ class PessoaServiceTest {
         when(cargoVencimentoRepository.findByCargo(any(Cargo.class))).thenReturn(Collections.emptyList());
 
         pessoaService.calcularEConsolidarTodos();
+        awaitJobFinish();
 
         verify(consolidadoRepository, never()).save(any(PessoaSalarioConsolidado.class));
         verify(consolidadoRepository, times(1)).saveMerge(any(PessoaSalarioConsolidado.class));
         verify(transaction, times(1)).begin();
         verify(transaction, times(1)).commit();
+        verify(requestContextController, atLeastOnce()).activate();
     }
+
 }
