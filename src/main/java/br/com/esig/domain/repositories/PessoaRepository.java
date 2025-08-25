@@ -1,41 +1,67 @@
 package br.com.esig.domain.repositories;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 
 import br.com.esig.domain.models.Pessoa;
 
-public class PessoaRepository extends GenericDAO<Pessoa> {
 
-    public PessoaRepository() {
-        super(Pessoa.class);
+
+@ApplicationScoped
+public class PessoaRepository {
+
+    @Inject
+    private EntityManager em;
+
+    public Pessoa find(Long id) {
+        return em.find(Pessoa.class, id);
     }
 
-    public List<Pessoa> findWithFilters(String nome, Long cargoId, boolean incluirInativos) {
-        CriteriaBuilder cb = getManager().getCriteriaBuilder();
-        CriteriaQuery<Pessoa> cq = cb.createQuery(Pessoa.class);
-        Root<Pessoa> root = cq.from(Pessoa.class);
-        cq.orderBy(cb.asc(root.get("nome")));
+    public Pessoa save(Pessoa p) {
+        if (p.getId() == null) {
+            em.persist(p);
+            return p;
+        } else {
+            return em.merge(p);
+        }
+    }
+    
+    public List<Pessoa> findAll() {
+        return em.createQuery("select p from Pessoa p order by p.nome", Pessoa.class)
+                 .getResultList();
+    }
+    
 
-        List<Predicate> predicates = new ArrayList<>();
+    public List<Pessoa> findWithFilters(String nome, Long cargoId, boolean incluirInativos) {
+        StringBuilder jpql = new StringBuilder();
+        jpql.append("select p from Pessoa p ");
+        jpql.append("left join fetch p.cargo c ");
+        jpql.append("where 1=1 ");
+
+        Map<String, Object> params = new HashMap<>();
 
         if (nome != null && !nome.trim().isEmpty()) {
-            predicates.add(cb.like(cb.lower(root.get("nome")), "%" + nome.toLowerCase() + "%"));
+            jpql.append("and lower(p.nome) like :nome ");
+            params.put("nome", "%" + nome.trim().toLowerCase() + "%");
         }
         if (cargoId != null) {
-            predicates.add(cb.equal(root.get("cargo").get("id"), cargoId));
+            jpql.append("and c.id = :cargoId ");
+            params.put("cargoId", cargoId);
         }
-        
         if (!incluirInativos) {
-            predicates.add(cb.isTrue(root.get("ativo")));
+            jpql.append("and p.ativo = true ");
         }
 
-        cq.where(predicates.toArray(new Predicate[0]));
-        return getManager().createQuery(cq).getResultList();
+        jpql.append("order by p.nome asc");
+
+        TypedQuery<Pessoa> q = em.createQuery(jpql.toString(), Pessoa.class);
+        params.forEach(q::setParameter);
+        return q.getResultList();
     }
 }
