@@ -119,13 +119,6 @@ src/main/webapp
 * **Context path**: se a URL não abrir, confirme o nome do `.war` ou o contexto configurado.
 * **Permissões Admin**: áreas restritas exigem usuário com `isAdmin=true`.
 
----
-
-## Teste Java ESIG
-
-[![Java CI with Maven](https://github.com/<SEU_USUARIO>/<SEU_REPOSITORIO>/actions/workflows/ci.yml/badge.svg)](https://github.com/<SEU_USUARIO>/<SEU_REPOSITORIO>/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/<SEU_USUARIO>/<SEU_REPOSITORIO>/branch/main/graph/badge.svg?token=<SEU_TOKEN_CODECOV>)](https://codecov.io/gh/<SEU_USUARIO>/<SEU_REPOSITORIO>)
-
 
 ## Licença
 
